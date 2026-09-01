@@ -1,57 +1,59 @@
 # 🛒 TheLook eCommerce: Revenue & Retention Analytics 
 
 **Author:** Rendi Dwi Andika  
-**Tools Used:** Google Cloud BigQuery, Standard SQL, Looker Studio  
+**Tools:** Google Cloud BigQuery, SQL, Looker Studio  
+**Dataset Source:** [Google Cloud Public Datasets (`bigquery-public-data.thelook_ecommerce`)](https://console.cloud.google.com/marketplace/product/bigquery-public-data/thelook-ecommerce)
 
 ## 📌 Project Overview
-**TheLook eCommerce** adalah platform ritel pakaian dan aksesoris online yang sedang berkembang pesat (berbasis dataset publik Google Cloud). 
+TheLook eCommerce is a public dataset provided by Google Cloud that simulates a large-scale online apparel retailer. 
 
-**Business Case:** Manajemen melihat pertumbuhan *Gross Merchandise Value (GMV)* yang sangat tinggi di *dashboard* utama. Namun, mereka curiga ada masalah operasional tersembunyi yang menggerus laba bersih dan tingkat loyalitas pembeli. Proyek ini mengeksekusi *Exploratory Data Analysis (EDA)* menyeluruh untuk membongkar realitas di balik angka GMV, memilah produk yang merugikan, dan menguji retensi pelanggan secara riil.
+**Business Case:**  
+On paper, TheLook's Gross Merchandise Value (GMV) shows consistent month-over-month growth. However, vanity metrics often mask underlying operational inefficiencies. This project performs an end-to-end Exploratory Data Analysis (EDA) using SQL to look past the top-line revenue and objectively address three main issues: how much cash is actually secured, which products are silently draining margins, and whether customers are returning after their first purchase.
 
 ---
 
-## 1. Financial Leakage: Uang Masuk vs Uang Batal
-**Problem:** Berapa besar kerugian pendapatan (*revenue leakage*) yang diakibatkan oleh pesanan batal atau barang yang diretur oleh pelanggan?
+## 1. Financial Leakage: Gross Revenue vs. Realized Cash
+**Problem:** High GMV does not necessarily mean a full bank account. How much potential revenue is lost due to canceled or returned orders?
 
-*(Drag & drop gambar grafik GMV vs Realized Revenue di sini)*
+<img width="1392" height="613" alt="GMV vs Realized Revenue" src="https://github.com/user-attachments/assets/b3808837-4f16-4ce2-a983-03bda76c4666" />
 
 **Key Findings:** 
-Platform mengalami kebocoran pendapatan konstan di kisaran **24% - 27%** setiap bulannya. Meskipun GMV terlihat bertumbuh drastis (puncak >$800k pada pertengahan 2026), pendapatan riil yang masuk ke kas (*realized revenue*) rata-rata hanya bertahan di angka 55% - 60%.
+The top-line GMV numbers are highly misleading. TheLook consistently leaks between **24% - 27%** of its revenue every month. Even when GMV peaked at over $800k in mid-2026, the actual secured money (*realized revenue*) hovered only around 55% - 60%. The rest vanished due to failed transactions and product returns.
 
-🔗 **SQL Source Code:** [`01_financial_leakage_audit.sql`](01_financial_leakage_audit.sql)
+🔗 **SQL Script:** [`01_financial_leakage_audit.sql`](01_financial_leakage_audit.sql)
 
 ---
 
-## 2. Product Profitability: Barang Cuan vs Barang Boncos
-**Problem:** Kategori produk mana yang memberikan margin kotor tertinggi, dan mana yang justru menjadi beban (*margin drainer*) akibat tingkat retur tinggi atau salah penetapan harga?
+## 2. Product Quality: Cash Cows vs. Margin Drainers
+**Problem:** Out of tens of thousands of items, which categories drive actual profit, and which are logistical burdens due to high return rates or pricing errors?
 
-*(Drag & drop gambar grafik scatter matriks produk di sini)*
+<img width="1213" height="492" alt="Product Risk   Profitability" src="https://github.com/user-attachments/assets/ad71d020-c47e-48a7-8133-b31d0676a8d0" />
 
 **Key Findings:** 
-Terdapat polarisasi ekstrem pada katalog produk:
-* **Tier 1 (Core):** Mencetak profit riil di atas $800 dengan tingkat retur sangat aman (<5%).
-* **Tier 2 (Risk):** Volume penjualan tinggi, tetapi tingkat retur mencapai 15% - 20%, memicu bengkaknya biaya logistik.
-* **Tier 3 (Loss Maker):** Ditemukan transaksi produk dengan *negative margin* (dijual di bawah harga modal).
+Product performance is heavily polarized. Based on the profitability matrix, the catalog falls into three main categories:
+* **Tier 1 (Core):** The cash cows. They generate over $800 in net profit with highly safe return rates (<5%).
+* **Tier 2 (Risk):** High sales volume, but terrible return rates (15% - 20%). Margins are being heavily consumed by reverse logistics (return shipping).
+* **Tier 3 (Loss Maker):** Identified multiple transactions with negative margins (items sold below base cost).
 
-🔗 **SQL Source Code:** [`02_product_profitability_matrix.sql`](02_product_profitability_matrix.sql)
+🔗 **SQL Script:** [`02_product_profitability_matrix.sql`](02_product_profitability_matrix.sql)
 
 ---
 
-## 3. Cohort Retention: Krisis Loyalitas Pembeli Baru
-**Problem:** Apakah kampanye akuisisi platform berhasil membuat pelanggan baru kembali bertransaksi (*repeat order*) dalam 6 bulan pertama (M0-M6)?
+## 3. Customer Loyalty (M0-M6 Cohort Retention)
+**Problem:** Does the customer acquisition effort translate into sustainable repeat purchases in the following months?
 
-*(Drag & drop gambar tabel cohort di sini)*
+<img width="990" height="655" alt="cihuyyyy" src="https://github.com/user-attachments/assets/579a42ea-b497-4a76-80c4-a364d2dc7ae1" />
 
 **Key Findings:** 
-Data membuktikan adanya krisis retensi fatal. Pada bulan pertama (M1) setelah pembelian perdana, tingkat retensi langsung anjlok ke rata-rata **1.5%**. Artinya, 98.5% dari seluruh basis pengguna TheLook adalah pembeli satu kali (*one-time buyers*).
+There is a severe customer loyalty crisis. By the first month following the initial purchase (M1), the retention rate free-falls to an average of **1.5%**. This reveals that **98.5%** of the platform's user base consists of *one-time buyers* who never return.
 
-🔗 **SQL Source Code:** [`03_customer_cohort_retention.sql`](03_customer_cohort_retention.sql)
+🔗 **SQL Script:** [`03_customer_cohort_retention.sql`](03_customer_cohort_retention.sql)
 
 ---
 
-## 💡 Executive Conclusion & Recommendations
-Platform TheLook sangat sehat dalam hal akuisisi dan GMV, namun keropos di efisiensi operasional dan loyalitas. Tindakan strategis yang wajib segera dieksekusi:
+## 💡 Conclusion & Business Recommendations
+TheLook's high GMV is driven purely by aggressive new-user acquisition, not operational efficiency or customer loyalty. To protect margins and build a sustainable business, management must take immediate action:
 
-* **Operations (Pencegahan Retur):** Audit ketat panduan ukuran (*size chart*) dan *Quality Control* gudang khusus untuk produk kuadran *Tier 2* guna menekan angka retur 15%+.
-* **Pricing Strategy:** Evaluasi ulang promo diskon atau sesuaikan Harga Pokok Penjualan (COGS) untuk memutus kerugian pada item *Tier 3* yang terjual dengan margin negatif.
-* **Marketing (Re-aktivasi M1):** Mengingat retensi pelanggan hancur di bulan pertama, tim marketing harus mengotomatisasi penyebaran voucher diskon/poin loyalti pada H+15 hingga H+30 setelah transaksi perdana untuk memancing pembeli kembali datang.
+* **Audit Tier 2 Products:** Conduct strict audits on sizing charts and warehouse Quality Control (QC) before shipping to suppress the 15%+ return rate.
+* **Halt "Loss Maker" Promotions:** Review the automated discount and pricing logic for Tier 3 items to ensure no orders result in negative margins.
+* **Aggressively Chase Repeat Orders:** Build a dedicated retention marketing funnel. Deploy automated re-activation campaigns or special discount vouchers between Day 15 and Day 30 post-purchase to rescue the collapsing M1 retention rate.
