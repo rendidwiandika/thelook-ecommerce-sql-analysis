@@ -31,11 +31,14 @@ The top-line GMV numbers are highly misleading. TheLook consistently leaks betwe
 
 **Key Findings:** 
 Product performance is heavily polarized. Based on the profitability matrix, the catalog falls into three main categories:
-* **Tier 1 (Core):** The cash cows. They generate over $800 in net profit with highly safe return rates (<5%).
-* **Tier 2 (Risk):** High sales volume, but terrible return rates (15% - 20%). Margins are being heavily consumed by reverse logistics (return shipping).
+* **Tier 1 (Core):** The cash cows. They generate above ~$300 in net profit (top 20% of the catalog) with safe return rates (<10%).
+* **Tier 2 (Risk):** High-profit products, but return rates worse than 90% of the catalog (≥18%). Margins are being heavily consumed by reverse logistics (return shipping).
 * **Tier 3 (Loss Maker):** Identified multiple transactions with negative margins (items sold below base cost).
 
 🔗 **SQL Script:** [`02_product_profitability_matrix.sql`](02_product_profitability_matrix.sql)
+
+**Methodology note — how the thresholds were chosen:**
+The profit and return-rate cutoffs used to define each tier are not arbitrary round numbers. They were derived by running [`00_profitability_threshold_distribution.sql`](00_profitability_threshold_distribution.sql) first, which ranks every product's profit and return rate as a percentile against the rest of the catalog (using `PERCENT_RANK()` / `APPROX_QUANTILES()`). The actual distribution came out lower than initially assumed: median (`P50`) realized gross profit across the catalog is only ~$139, and even the top 10% of products (`P90`) top out around ~$554. Based on this, the "High Profit" cutoff was set at **$300** (~`P80`, roughly the top 20% of products), and the "High Return Risk" cutoff was set at **18%** (~`P90` of return_rate_pct), meaning a product is only flagged as high-risk when its return rate is worse than nearly all its peers, not just modestly above average.
 
 ---
 
