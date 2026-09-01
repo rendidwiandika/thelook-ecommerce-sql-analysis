@@ -1,60 +1,57 @@
-# 🛒 TheLook eCommerce: Revenue Leakage & Customer Retention Analysis
+# 🛒 TheLook eCommerce: Revenue & Retention Analytics 
 
-![SQL](https://img.shields.io/badge/Language-SQL-blue.svg)
-![Platform](https://img.shields.io/badge/Platform-Google%20BigQuery-orange.svg)
-![Focus](https://img.shields.io/badge/Focus-Business%20Metrics%20%26%20Retention-green.svg)
+**Author:** Rendi Dwi Andika  
+**Tools Used:** Google Cloud BigQuery, Standard SQL, Looker Studio  
 
-## 📌 Executive Summary
-Proyek *Exploratory Data Analysis* (EDA) ini membedah data operasional **TheLook eCommerce** menggunakan Google Cloud BigQuery. Fokus utama analisis ini adalah mengevaluasi kesehatan finansial platform di luar metrik *Gross Merchandise Value* (GMV), memetakan profitabilitas portofolio produk, dan mengukur tingkat loyalitas pelanggan baru (cohort retention).
+## 📌 Project Overview
+**TheLook eCommerce** adalah platform ritel pakaian dan aksesoris online yang sedang berkembang pesat (berbasis dataset publik Google Cloud). 
 
----
-
-## 🎯 Business Problem & Objectives
-Manajemen membutuhkan visibilitas terhadap margin riil platform yang selama ini terdistorsi oleh pesanan batal dan retur. Proyek ini bertujuan untuk menjawab 3 pertanyaan strategis:
-1. **Financial Leakage:** Berapa besar kerugian pendapatan (*revenue leakage*) akibat pesanan batal atau diretur?
-2. **Product Profitability:** Kategori produk mana yang memberikan laba kotor tertinggi, dan mana yang menjadi *margin drainer* akibat tingkat retur logistik yang tinggi?
-3. **Customer Retention:** Apakah pelanggan baru kembali bertransaksi (*repeat order*) dalam 6 bulan pertama setelah akuisisi?
+**Business Case:** Manajemen melihat pertumbuhan *Gross Merchandise Value (GMV)* yang sangat tinggi di *dashboard* utama. Namun, mereka curiga ada masalah operasional tersembunyi yang menggerus laba bersih dan tingkat loyalitas pembeli. Proyek ini mengeksekusi *Exploratory Data Analysis (EDA)* menyeluruh untuk membongkar realitas di balik angka GMV, memilah produk yang merugikan, dan menguji retensi pelanggan secara riil.
 
 ---
 
-## 🔍 Deep-Dive Analysis & Key Insights
+## 1. Financial Leakage: Uang Masuk vs Uang Batal
+**Problem:** Berapa besar kerugian pendapatan (*revenue leakage*) yang diakibatkan oleh pesanan batal atau barang yang diretur oleh pelanggan?
 
-### Phase 1: Tingkat Kebocoran Pendapatan (*Revenue Leakage*)
-![GMV vs Realized Revenue](./images/GMV_vs_Realized_Revenue.png)
-* **Insight:** Platform secara konsisten mengalami kebocoran pendapatan di kisaran **24% - 27%** setiap bulannya. 
-* **Dampak:** Meskipun GMV terlihat bertumbuh pesat (mencapai puncak >$800k pada pertengahan 2026), pendapatan riil yang berhasil dicairkan (*realized revenue*) rata-rata hanya tertahan di angka 55% - 60%.
+*(Drag & drop gambar grafik GMV vs Realized Revenue di sini)*
 
-### Phase 2: Matriks Profitabilitas Produk
-![Product Risk Matrix](./images/Product_Risk_Profitability.png)
-* **Insight:** Terjadi polarisasi pada portofolio produk. Produk *Tier 1* mencetak profit riil di atas $800 dengan tingkat retur sangat rendah (<5%). Namun, teridentifikasi produk *Tier 3 (Loss Maker)* yang dijual dengan *negative margin* dan produk *Tier 2* yang volume penjualannya tinggi tetapi returnya mencapai 15% - 20%.
+**Key Findings:** 
+Platform mengalami kebocoran pendapatan konstan di kisaran **24% - 27%** setiap bulannya. Meskipun GMV terlihat bertumbuh drastis (puncak >$800k pada pertengahan 2026), pendapatan riil yang masuk ke kas (*realized revenue*) rata-rata hanya bertahan di angka 55% - 60%.
 
-### Phase 3: Krisis Retensi Pelanggan (M1 Drop-off)
-![Cohort Retention Heatmap](./images/cihuyyyy.jpeg)
-* **Insight:** Bisnis ini sangat bergantung pada akuisisi pelanggan baru. Retensi pelanggan pada bulan pertama (M1) langsung anjlok drastis ke angka rata-rata **1.5%**. Sekitar 98.5% pengguna adalah pembeli satu kali (*one-time buyers*).
+🔗 **SQL Source Code:** [`01_financial_leakage_audit.sql`](01_financial_leakage_audit.sql)
 
 ---
 
-## 💡 Strategic Recommendations
+## 2. Product Profitability: Barang Cuan vs Barang Boncos
+**Problem:** Kategori produk mana yang memberikan margin kotor tertinggi, dan mana yang justru menjadi beban (*margin drainer*) akibat tingkat retur tinggi atau salah penetapan harga?
 
-1. **Pencegahan Retur Logistik (Operational):** Lakukan audit deskripsi ukuran, kualitas bahan, dan *quality control* (QC) secara spesifik untuk kategori produk di kuadran *Tier 2 (High Return Risk)*.
-2. **Koreksi Harga (Pricing):** Bekukan sementara promosi atau evaluasi biaya pokok (COGS) untuk item-item yang terdeteksi memiliki riwayat transaksi *negative margin*.
-3. **Fokus Re-aktivasi Pelanggan (Marketing):** Platform wajib meluncurkan program loyalitas atau mendistribusikan *voucher* re-aktivasi otomatis pada hari ke-15 hingga ke-30 pasca-transaksi perdana untuk menyelamatkan tingkat retensi M1.
+*(Drag & drop gambar grafik scatter matriks produk di sini)*
 
----
+**Key Findings:** 
+Terdapat polarisasi ekstrem pada katalog produk:
+* **Tier 1 (Core):** Mencetak profit riil di atas $800 dengan tingkat retur sangat aman (<5%).
+* **Tier 2 (Risk):** Volume penjualan tinggi, tetapi tingkat retur mencapai 15% - 20%, memicu bengkaknya biaya logistik.
+* **Tier 3 (Loss Maker):** Ditemukan transaksi produk dengan *negative margin* (dijual di bawah harga modal).
 
-## 📂 Repository Structure & SQL Pipeline
-
-Proses pembersihan data dan transformasi kompleks (menggunakan *Chained CTEs*, *Conditional Aggregations*, dan *Window Functions*) dipisahkan ke dalam tiga skrip modular:
-
-| Phase | Description | SQL Script |
-| :--- | :--- | :--- |
-| **Phase 1** | GMV vs Realized Revenue & Leakage Audit | [`01_financial_leakage_audit.sql`](./sql/01_financial_leakage_audit.sql) |
-| **Phase 2** | Product Risk & Profitability Matrix | [`02_product_profitability_matrix.sql`](./sql/02_product_profitability_matrix.sql) |
-| **Phase 3** | Customer Cohort Retention (M0-M6) | [`03_customer_cohort_retention.sql`](./sql/03_customer_cohort_retention.sql) |
+🔗 **SQL Source Code:** [`02_product_profitability_matrix.sql`](02_product_profitability_matrix.sql)
 
 ---
 
-## 👤 Author
-**Rendi Dwi Andika**  
-*Mahasiswa Bisnis Digital & Data Enthusiast*  
-[LinkedIn](https://www.linkedin.com/in/rendidwiandika/) | [Email](mailto:email-kamu@example.com)
+## 3. Cohort Retention: Krisis Loyalitas Pembeli Baru
+**Problem:** Apakah kampanye akuisisi platform berhasil membuat pelanggan baru kembali bertransaksi (*repeat order*) dalam 6 bulan pertama (M0-M6)?
+
+*(Drag & drop gambar tabel cohort di sini)*
+
+**Key Findings:** 
+Data membuktikan adanya krisis retensi fatal. Pada bulan pertama (M1) setelah pembelian perdana, tingkat retensi langsung anjlok ke rata-rata **1.5%**. Artinya, 98.5% dari seluruh basis pengguna TheLook adalah pembeli satu kali (*one-time buyers*).
+
+🔗 **SQL Source Code:** [`03_customer_cohort_retention.sql`](03_customer_cohort_retention.sql)
+
+---
+
+## 💡 Executive Conclusion & Recommendations
+Platform TheLook sangat sehat dalam hal akuisisi dan GMV, namun keropos di efisiensi operasional dan loyalitas. Tindakan strategis yang wajib segera dieksekusi:
+
+* **Operations (Pencegahan Retur):** Audit ketat panduan ukuran (*size chart*) dan *Quality Control* gudang khusus untuk produk kuadran *Tier 2* guna menekan angka retur 15%+.
+* **Pricing Strategy:** Evaluasi ulang promo diskon atau sesuaikan Harga Pokok Penjualan (COGS) untuk memutus kerugian pada item *Tier 3* yang terjual dengan margin negatif.
+* **Marketing (Re-aktivasi M1):** Mengingat retensi pelanggan hancur di bulan pertama, tim marketing harus mengotomatisasi penyebaran voucher diskon/poin loyalti pada H+15 hingga H+30 setelah transaksi perdana untuk memancing pembeli kembali datang.
