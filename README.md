@@ -27,7 +27,7 @@ The top-line GMV numbers are highly misleading. TheLook consistently leaks betwe
 ## 2. Product Quality: Cash Cows vs. Margin Drainers
 **Problem:** Out of tens of thousands of items, which categories drive actual profit, and which are logistical burdens due to high return rates or pricing errors?
 
-<img width="1213" height="492" alt="Product Risk   Profitability" src="https://github.com/user-attachments/assets/ad71d020-c47e-48a7-8133-b31d0676a8d0" />
+<img width="1240" height="500" alt="Pelaporan Data Studio - 01_09_26, 22 11_Untitled Page_Diagram sebar" src="https://github.com/user-attachments/assets/560d7d77-8c6d-4932-b3ae-9a5b3d3f2960" />
 
 **Key Findings:** 
 Product performance is heavily polarized. Based on the profitability matrix, the catalog falls into three main categories:
